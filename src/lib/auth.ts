@@ -56,7 +56,7 @@ export const auth = betterAuth({
           process.env.INTERNAL_SECRET;
         if (!isInternalCall)
           throw new APIError('BAD_REQUEST', {
-            message: 'Public sign-up is not allowed.',
+            message: 'This route is not public.',
           });
       }
     }),

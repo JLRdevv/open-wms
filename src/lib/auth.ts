@@ -27,26 +27,37 @@ export const auth = betterAuth({
   }),
   emailAndPassword: {
     enabled: true,
+    minPasswordLength: 3,
   },
   plugins: [username()],
 
+  user: {
+    additionalFields: {
+      role: {
+        type: 'string',
+        required: false,
+      },
+      shouldRotatePassword: {
+        type: 'boolean',
+        required: false,
+      },
+      createdBy: {
+        type: 'string',
+        required: false,
+      },
+    },
+  },
+
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path !== '/sign-up/email') {
-        return;
-      }
-      // hook for username validation
-      const { username } = ctx.body;
-      if (!username || username.trim() === '') {
-        throw new APIError('BAD_REQUEST', {
-          message: 'Username is required.',
-        });
-      }
-
-      if (username.length < 3) {
-        throw new APIError('BAD_REQUEST', {
-          message: 'Username is too short.',
-        });
+      if (ctx.path == '/sign-up/email') {
+        const isInternalCall =
+          ctx.headers?.get(process.env.INTERNAL_HEADER_NAME!) ===
+          process.env.INTERNAL_SECRET;
+        if (!isInternalCall)
+          throw new APIError('BAD_REQUEST', {
+            message: 'Public sign-up is not allowed.',
+          });
       }
     }),
   },

@@ -5,6 +5,7 @@ import { AuthModule } from '@thallesp/nestjs-better-auth';
 import { auth } from './lib/auth';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerModule } from 'nestjs-pino';
+import { UsersModule } from './users/users.module';
 
 @Module({
   imports: [
@@ -40,6 +41,7 @@ import { LoggerModule } from 'nestjs-pino';
         },
       },
     }),
+    UsersModule,
   ],
   controllers: [AppController],
 })

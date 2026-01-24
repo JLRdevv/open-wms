@@ -27,6 +27,8 @@ model User {
   sessions        Session[]
   accounts        Account[]
   role            Role      @default(OPERATOR)
+  shouldRotatePassword  Boolean   @default(true)
+  createdBy String?
 
   @@unique([email])
   @@unique([username])

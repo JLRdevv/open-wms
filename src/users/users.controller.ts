@@ -1,17 +1,17 @@
 import { Body, Controller, Post, Req, UseGuards } from '@nestjs/common';
 import { UsersService } from './users.service';
-import { AdminGuard } from 'src/guards/admin';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { CreateEmployeeDto } from './dtos/create-employee';
 import { RotatePasswordDto } from './dtos/rotate-password';
 import { type Request } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
+import { ManagerLevelGuard } from 'src/guards/manager-level';
 
 @Controller('employees')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(AdminGuard)
+  @UseGuards(ManagerLevelGuard)
   @Post('create')
   async createEmployee(
     @Body() body: CreateEmployeeDto,

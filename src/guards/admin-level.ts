@@ -1,21 +1,21 @@
 import {
+  Injectable,
   CanActivate,
   ExecutionContext,
   ForbiddenException,
-  Injectable,
 } from '@nestjs/common';
 import { User } from '@prisma/client';
 
 @Injectable()
-export class PasswordRotationGuard implements CanActivate {
+export class AdminLevelGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user = request.user as User | undefined;
-
-    if (!user || user.shouldRotatePassword) {
-      throw new ForbiddenException('Rotate your password first.');
+    if (!user || user.role !== 'ADMIN') {
+      throw new ForbiddenException(
+        'Access denied. Admin level permission required.',
+      );
     }
-
     return true;
   }
 }

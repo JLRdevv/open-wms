@@ -7,12 +7,14 @@ import {
 import { User } from '@prisma/client';
 
 @Injectable()
-export class AdminGuard implements CanActivate {
+export class ManagerLevelGuard implements CanActivate {
   canActivate(context: ExecutionContext): boolean {
     const request = context.switchToHttp().getRequest();
     const user = request.user as User | undefined;
-    if (!user || user.role !== 'ADMIN') {
-      throw new ForbiddenException('Access denied. Admins only.');
+    if (!user || (user.role !== 'MANAGER' && user.role !== 'ADMIN')) {
+      throw new ForbiddenException(
+        'Access denied. Managers level permission required.',
+      );
     }
     return true;
   }

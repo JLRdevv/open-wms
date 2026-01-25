@@ -5,9 +5,12 @@ import { auth } from 'src/lib/auth';
 import { Role, User } from '@prisma/client';
 import { type UserSession } from '@thallesp/nestjs-better-auth';
 import { RotatePasswordDto } from './dtos/rotate-password';
+import { PrismaService } from 'src/prisma/prisma.service';
 
 @Injectable()
 export class UsersService {
+  constructor(private readonly prisma: PrismaService) {}
+
   async createEmployee(employeeData: CreateEmployeeDto, adminId: string) {
     UserUtils.passwordValidation(employeeData.password, employeeData.role);
 
@@ -45,7 +48,7 @@ export class UsersService {
     headers: Headers,
   ) {
     const user = session.user as User;
-    // checks if user can rotate
+
     if (!user.shouldRotatePassword) {
       throw new BadRequestException('User is not allowed to rotate password.');
     }
@@ -57,17 +60,26 @@ export class UsersService {
     }
 
     UserUtils.passwordValidation(body.newPassword, user.role);
+    try {
+      await auth.api.changePassword({
+        body: {
+          currentPassword: body.currentPassword,
+          newPassword: body.newPassword,
+        },
+        headers,
+      });
 
-    await auth.api.changePassword({
-      body: {
-        currentPassword: body.currentPassword,
-        newPassword: body.newPassword,
-      },
-      headers,
-    });
-    return {
-      success: true,
-      message: 'Password changed successfully.',
-    };
+      await this.prisma.user.update({
+        where: { id: user.id },
+        data: { shouldRotatePassword: false },
+      });
+
+      return {
+        success: true,
+        message: 'Password changed successfully.',
+      };
+    } catch (error) {
+      throw error;
+    }
   }
 }

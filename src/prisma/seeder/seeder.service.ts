@@ -44,6 +44,9 @@ export class SeederService implements OnModuleInit {
           name: 'Super Admin',
           username,
         },
+        headers: new Headers({
+          [process.env.INTERNAL_HEADER_NAME!]: process.env.INTERNAL_SECRET!,
+        }),
       });
 
       const newUser = await this.prisma.user.findUnique({ where: { email } });

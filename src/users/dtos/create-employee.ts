@@ -5,9 +5,12 @@ import {
   IsOptional,
   IsEmail,
   IsIn,
+  IsInt,
 } from 'class-validator';
 
-const creatableRoles = Object.values(Role).filter((role) => role !== Role.ROOT);
+export const creatableRoles = Object.values(Role).filter(
+  (role) => role !== Role.ROOT,
+);
 
 export class CreateEmployeeDto {
   @IsString()
@@ -25,6 +28,10 @@ export class CreateEmployeeDto {
   @IsEmail()
   @IsOptional()
   email?: string;
+
+  @IsInt()
+  @IsOptional()
+  warehouseId?: number;
 
   @IsIn(creatableRoles)
   role: Role;

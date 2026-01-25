@@ -1,10 +1,11 @@
-# Open-wms
-Work in progress 🚧, come back in a few days!
+# Open WMS
+
+🚧 Work in progress — come back in a few days!
 
 ## The idea
-To build an open source WMS (Warehouse Management System) API with all the basic functionality you could expect, like:
+Build an open-source WMS (Warehouse Management System) API with core features you would expect, such as:
+
 - Inbound flow
 - Putaway tasks
 - Picking
 - Packing
-- Shipping

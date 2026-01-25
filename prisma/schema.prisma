@@ -9,6 +9,8 @@ datasource db {
 }
 
 enum Role {
+  ROOT
+  SUPER_ADMIN
   ADMIN
   MANAGER
   OPERATOR

@@ -2,7 +2,7 @@ import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller';
 import { AuthModule } from '@thallesp/nestjs-better-auth';
-import { auth } from './lib/auth';
+import { auth } from './lib/auth/auth';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerModule } from 'nestjs-pino';
 import { UsersModule } from './users/users.module';

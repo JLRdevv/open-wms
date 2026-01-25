@@ -5,19 +5,18 @@ import { CreateEmployeeDto } from './dtos/create-employee';
 import { RotatePasswordDto } from './dtos/rotate-password';
 import { type Request } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
-import { ManagerLevelGuard } from 'src/guards/manager-level';
+import { User } from '@prisma/client';
 
 @Controller('employees')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 
-  @UseGuards(ManagerLevelGuard)
-  @Post('create')
+  @Post()
   async createEmployee(
     @Body() body: CreateEmployeeDto,
     @Session() session: UserSession,
   ) {
-    return await this.usersService.createEmployee(body, session.user.id);
+    return await this.usersService.createEmployee(body, session.user as User);
   }
 
   @Post('rotate-password')

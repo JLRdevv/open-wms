@@ -3,11 +3,11 @@ import {
   IsString,
   IsNotEmpty,
   IsOptional,
-  IsIn,
   IsEmail,
+  IsIn,
 } from 'class-validator';
 
-const AllowedRoles = Object.values(Role).filter((role) => role !== Role.ADMIN);
+const creatableRoles = Object.values(Role).filter((role) => role !== Role.ROOT);
 
 export class CreateEmployeeDto {
   @IsString()
@@ -26,7 +26,6 @@ export class CreateEmployeeDto {
   @IsOptional()
   email?: string;
 
-  @IsIn(AllowedRoles)
-  @IsOptional()
-  role: Role = Role.OPERATOR;
+  @IsIn(creatableRoles)
+  role: Role;
 }

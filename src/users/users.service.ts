@@ -1,36 +1,48 @@
-import { BadRequestException, Injectable } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import { CreateEmployeeDto } from './dtos/create-employee';
 import { UserUtils } from './user.utils';
-import { auth } from 'src/lib/auth';
+import { auth } from 'src/lib/auth/auth';
 import { Role, User } from '@prisma/client';
 import { type UserSession } from '@thallesp/nestjs-better-auth';
 import { RotatePasswordDto } from './dtos/rotate-password';
 import { PrismaService } from 'src/prisma/prisma.service';
+import { canManageRole } from 'src/lib/auth/role.util';
 
 @Injectable()
 export class UsersService {
   constructor(private readonly prisma: PrismaService) {}
 
-  async createEmployee(employeeData: CreateEmployeeDto, adminId: string) {
-    UserUtils.passwordValidation(employeeData.password, employeeData.role);
+  async createEmployee(newEmployee: CreateEmployeeDto, currentUser: User) {
+    if (!canManageRole(currentUser.role, newEmployee.role)) {
+      throw new UnauthorizedException(
+        `You do not have permission to create users with the role ${newEmployee.role}.`,
+      );
+    }
 
-    if (employeeData.role !== Role.OPERATOR)
-      if (!employeeData.email)
+    UserUtils.passwordValidation(newEmployee.password, newEmployee.role);
+
+    // Email not required for operators
+    if (newEmployee.role !== Role.OPERATOR)
+      if (!newEmployee.email)
         throw new BadRequestException(
-          'Email is required for non-operator roles.',
+          `Email is required for ${newEmployee.role} role.`,
         );
 
-    const email = employeeData.email || `${employeeData.username}@local.com`;
+    const email = newEmployee.email || `${newEmployee.username}@local.com`;
 
     try {
       await auth.api.signUpEmail({
         body: {
           email,
-          password: employeeData.password,
-          name: employeeData.name,
-          role: employeeData.role,
-          username: employeeData.username,
-          createdBy: adminId,
+          password: newEmployee.password,
+          name: newEmployee.name,
+          role: newEmployee.role,
+          username: newEmployee.username,
+          createdBy: currentUser.id,
         },
         headers: new Headers({
           [process.env.INTERNAL_HEADER_NAME!]: process.env.INTERNAL_SECRET!,
@@ -50,16 +62,13 @@ export class UsersService {
     const user = session.user as User;
 
     if (!user.shouldRotatePassword) {
-      throw new BadRequestException('User is not allowed to rotate password.');
-    }
-
-    if (!body.currentPassword || !body.newPassword) {
       throw new BadRequestException(
-        'Current password and new password are required for operators.',
+        'You are not allowed to rotate your password.',
       );
     }
 
     UserUtils.passwordValidation(body.newPassword, user.role);
+
     try {
       await auth.api.changePassword({
         body: {

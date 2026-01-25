@@ -13,19 +13,11 @@ export class UserUtils {
         );
       }
     }
-    if (role === Role.MANAGER) {
-      const managerPasswordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-      if (!password.match(managerPasswordRegex)) {
-        throw new BadRequestException(`Manager ${strongPasswordError}`);
-      }
-    }
-    if (role === Role.ADMIN) {
-      const adminPasswordRegex =
-        /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
-      if (!password.match(adminPasswordRegex)) {
-        throw new BadRequestException(`Admin ${strongPasswordError}`);
-      }
+
+    const strongPasswordRegex =
+      /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)(?=.*[\W_]).{8,}$/;
+    if (!password.match(strongPasswordRegex)) {
+      throw new BadRequestException(`${role} ${strongPasswordError}`);
     }
   }
 }

@@ -17,6 +17,17 @@ export class UsersRepository {
     });
   }
 
+  async disconnectWarehouse(userId: string, warehouseId: number) {
+    return await this.prisma.user.update({
+      where: { id: userId },
+      data: {
+        warehouses: {
+          disconnect: { id: warehouseId },
+        },
+      },
+    });
+  }
+
   async enableRotatePassword(userId: string) {
     return await this.prisma.user.update({
       where: { id: userId },
@@ -31,6 +42,7 @@ export class UsersRepository {
       where: { id: userId },
       data: {
         role: newRole,
+        shouldRotatePassword: true,
         ...(warehouseId && {
           warehouses: {
             connect: { id: warehouseId },

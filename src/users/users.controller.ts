@@ -1,4 +1,12 @@
-import { Body, Controller, Param, Patch, Post, Req } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Param,
+  Patch,
+  Post,
+  Req,
+} from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { CreateEmployeeDto } from './dtos/create-employee';
@@ -8,6 +16,7 @@ import { fromNodeHeaders } from 'better-auth/node';
 import { User } from '@prisma/client';
 import { RoleChangeDto } from './dtos/role-change';
 import { UpdateEmployeeDto } from './dtos/update-employee';
+import { AssignWarehouseDto } from './dtos/assign-warehouse';
 
 @Controller('employee')
 export class UsersController {
@@ -60,6 +69,30 @@ export class UsersController {
       body.newRole,
       session.user as User,
       body.warehouseId,
+    );
+  }
+
+  @Post(':employeeId/warehouses/:warehouseId')
+  async assignToWarehouse(
+    @Param() params: AssignWarehouseDto,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.assignToWarehouse(
+      params.employeeId,
+      params.warehouseId,
+      session.user as User,
+    );
+  }
+
+  @Delete(':employeeId/warehouses/:warehouseId')
+  async unassignFromWarehouse(
+    @Param() params: AssignWarehouseDto,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.unassignFromWarehouse(
+      params.employeeId,
+      params.warehouseId,
+      session.user as User,
     );
   }
 }

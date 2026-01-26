@@ -20,4 +20,13 @@ export class UserUtils {
       throw new BadRequestException(`${role} ${strongPasswordError}`);
     }
   }
+
+  static usernameValidation(username: string) {
+    const usernameRegex = /^[a-zA-Z0-9._-]{3,30}$/;
+    if (!username.match(usernameRegex)) {
+      throw new BadRequestException(
+        'Username must be 3-30 characters long and can only contain letters, numbers, dots, underscores, and hyphens.',
+      );
+    }
+  }
 }

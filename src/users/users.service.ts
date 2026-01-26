@@ -1,5 +1,6 @@
 import {
   BadRequestException,
+  ConflictException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -15,6 +16,7 @@ import { RotatePasswordDto } from './dtos/rotate-password';
 import { PrismaService } from 'src/prisma/prisma.service';
 import { canManageRole, RoleLevel } from 'src/lib/auth/role.util';
 import { UsersRepository } from './users.repository';
+import { UpdateEmployeeDto } from './dtos/update-employee';
 
 @Injectable()
 export class UsersService {
@@ -172,6 +174,61 @@ export class UsersService {
       };
     } catch (error) {
       this.logger.error('Error updating role', error);
+      throw new InternalServerErrorException();
+    }
+  }
+
+  async updateEmployee(
+    updateData: UpdateEmployeeDto,
+    targetId: string,
+    currentUser: User,
+  ) {
+    const employee = await this.usersRepository.findById(targetId);
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found.');
+    }
+
+    if (!canManageRole(currentUser.role, employee.role)) {
+      throw new UnauthorizedException(
+        'You do not have permission to update this user.',
+      );
+    }
+
+    if (updateData.username) {
+      UserUtils.usernameValidation(updateData.username);
+    }
+
+    if (updateData.email || updateData.username) {
+      const [existingByUsername, existingByEmail] = await Promise.all([
+        updateData.username
+          ? this.usersRepository.findByUsername(updateData.username)
+          : null,
+        updateData.email
+          ? this.usersRepository.findByEmail(updateData.email)
+          : null,
+      ]);
+
+      if (existingByUsername && existingByUsername.id !== targetId) {
+        throw new ConflictException('Username already in use.');
+      }
+
+      if (existingByEmail && existingByEmail.id !== targetId) {
+        throw new ConflictException('Email already in use.');
+      }
+    }
+
+    const dataToUpdate: Partial<User> = {};
+    if (updateData.name) dataToUpdate.name = updateData.name;
+    if (updateData.email) dataToUpdate.email = updateData.email;
+    if (updateData.username) dataToUpdate.username = updateData.username;
+
+    try {
+      await this.usersRepository.update(targetId, dataToUpdate);
+
+      return { success: true, message: 'Employee updated successfully.' };
+    } catch (error) {
+      this.logger.error('Error updating employee', error);
       throw new InternalServerErrorException();
     }
   }

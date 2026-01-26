@@ -17,7 +17,7 @@ const prismaBase = new PrismaClient({
 
 // put hooks later
 const prisma = prismaBase;
-
+const privateRoutes = ['/sign-up/email', '/update-user'];
 export const auth = betterAuth({
   baseURL: BASE_URL!,
   trustedOrigins: [process.env.TRUSTED_ORIGINS!],
@@ -50,7 +50,7 @@ export const auth = betterAuth({
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path == '/sign-up/email') {
+      if (privateRoutes.includes(ctx.path)) {
         const isInternalCall =
           ctx.headers?.get(process.env.INTERNAL_HEADER_NAME!) ===
           process.env.INTERNAL_SECRET;

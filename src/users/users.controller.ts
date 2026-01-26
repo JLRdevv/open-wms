@@ -1,12 +1,4 @@
-import {
-  Body,
-  Controller,
-  Param,
-  Patch,
-  Post,
-  Req,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Param, Patch, Post, Req } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { CreateEmployeeDto } from './dtos/create-employee';
@@ -15,6 +7,7 @@ import { type Request } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
 import { User } from '@prisma/client';
 import { RoleChangeDto } from './dtos/role-change';
+import { UpdateEmployeeDto } from './dtos/update-employee';
 
 @Controller('employee')
 export class UsersController {
@@ -40,6 +33,19 @@ export class UsersController {
       body,
       session,
       sessionHeaders,
+    );
+  }
+
+  @Patch(':id')
+  async updateEmployee(
+    @Body() body: UpdateEmployeeDto,
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.updateEmployee(
+      body,
+      id,
+      session.user as User,
     );
   }
 

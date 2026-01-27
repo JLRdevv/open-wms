@@ -63,9 +63,12 @@ export class UsersRepository {
     });
   }
 
-  async findById(userId: string, include: { warehouses?: boolean } = {}) {
+  async findById(
+    userId: string,
+    include: { warehouses?: boolean; deleted?: boolean } = {},
+  ) {
     return await this.prisma.user.findUnique({
-      where: { id: userId, deletedAt: null },
+      where: { id: userId, ...(include.deleted ? {} : { deletedAt: null }) },
       include: {
         warehouses: include.warehouses,
       },

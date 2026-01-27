@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -78,6 +79,25 @@ export class UsersController {
     @Session() session: UserSession,
   ) {
     return await this.usersService.deleteEmployee(id, session.user as User);
+  }
+
+  @Get(':id')
+  async getEmployeeById(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.getEmployeeById(id, session.user as User);
+  }
+
+  @Get(':id/warehouses')
+  async getWarehousesByEmployee(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.getWarehousesByEmployee(
+      id,
+      session.user as User,
+    );
   }
 
   @Post(':employeeId/warehouses/:warehouseId')

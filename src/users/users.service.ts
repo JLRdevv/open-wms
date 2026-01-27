@@ -17,7 +17,6 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { canManageRole, RoleLevel } from 'src/lib/auth/role.util';
 import { UsersRepository } from './users.repository';
 import { UpdateEmployeeDto } from './dtos/update-employee';
-import e from 'express';
 
 @Injectable()
 export class UsersService {
@@ -354,5 +353,41 @@ export class UsersService {
       this.logger.error('Error deleting employee', error);
       throw new InternalServerErrorException('Error deleting employee.');
     }
+  }
+
+  async getWarehousesByEmployee(id: string, currentUser: User) {
+    const employee = await this.usersRepository.findById(id, {
+      warehouses: true,
+    });
+    if (!employee) {
+      throw new NotFoundException('Employee not found.');
+    }
+    if (
+      id !== currentUser.id &&
+      !canManageRole(currentUser.role, employee.role)
+    ) {
+      throw new UnauthorizedException(
+        "You do not have permission to view this user's assigned warehouses.",
+      );
+    }
+    return employee.warehouses;
+  }
+
+  async getEmployeeById(id: string, currentUser: User) {
+    const employee = await this.usersRepository.findById(id, { deleted: true });
+    if (!employee) {
+      throw new NotFoundException('Employee not found.');
+    }
+
+    if (
+      id !== currentUser.id &&
+      !canManageRole(currentUser.role, employee.role)
+    ) {
+      throw new UnauthorizedException(
+        "You do not have permission to view this user's information.",
+      );
+    }
+
+    return employee;
   }
 }

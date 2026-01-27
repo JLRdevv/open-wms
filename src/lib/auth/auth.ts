@@ -17,7 +17,8 @@ const prismaBase = new PrismaClient({
 
 // put hooks later
 const prisma = prismaBase;
-
+const privateRoutes = ['/sign-up/email', '/update-user'];
+const USERNAME_SIGNIN_ROUTE = '/sign-in/username';
 export const auth = betterAuth({
   baseURL: BASE_URL!,
   trustedOrigins: [process.env.TRUSTED_ORIGINS!],
@@ -45,12 +46,16 @@ export const auth = betterAuth({
         type: 'string',
         required: false,
       },
+      deletedAt: {
+        type: 'date',
+        required: false,
+      },
     },
   },
 
   hooks: {
     before: createAuthMiddleware(async (ctx) => {
-      if (ctx.path == '/sign-up/email') {
+      if (privateRoutes.includes(ctx.path)) {
         const isInternalCall =
           ctx.headers?.get(process.env.INTERNAL_HEADER_NAME!) ===
           process.env.INTERNAL_SECRET;
@@ -58,6 +63,18 @@ export const auth = betterAuth({
           throw new APIError('BAD_REQUEST', {
             message: 'This route is not public.',
           });
+      }
+      if (ctx.path === USERNAME_SIGNIN_ROUTE) {
+        const isDeleted = await prisma.user.findUnique({
+          where: { username: ctx.body.username },
+          select: { deletedAt: true },
+        });
+
+        if (isDeleted?.deletedAt) {
+          throw new APIError('BAD_REQUEST', {
+            message: 'This account has been deleted.',
+          });
+        }
       }
     }),
   },

@@ -1,11 +1,12 @@
 import {
   Body,
   Controller,
+  Delete,
+  Get,
   Param,
   Patch,
   Post,
   Req,
-  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
@@ -15,6 +16,8 @@ import { type Request } from 'express';
 import { fromNodeHeaders } from 'better-auth/node';
 import { User } from '@prisma/client';
 import { RoleChangeDto } from './dtos/role-change';
+import { UpdateEmployeeDto } from './dtos/update-employee';
+import { AssignWarehouseDto } from './dtos/assign-warehouse';
 
 @Controller('employee')
 export class UsersController {
@@ -43,6 +46,19 @@ export class UsersController {
     );
   }
 
+  @Patch(':id')
+  async updateEmployee(
+    @Body() body: UpdateEmployeeDto,
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.updateEmployee(
+      body,
+      id,
+      session.user as User,
+    );
+  }
+
   @Patch(':id/role')
   async roleChange(
     @Body() body: RoleChangeDto,
@@ -54,6 +70,57 @@ export class UsersController {
       body.newRole,
       session.user as User,
       body.warehouseId,
+    );
+  }
+
+  @Delete(':id')
+  async deleteEmployee(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.deleteEmployee(id, session.user as User);
+  }
+
+  @Get(':id')
+  async getEmployeeById(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.getEmployeeById(id, session.user as User);
+  }
+
+  @Get(':id/warehouses')
+  async getWarehousesByEmployee(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.getWarehousesByEmployee(
+      id,
+      session.user as User,
+    );
+  }
+
+  @Post(':employeeId/warehouses/:warehouseId')
+  async assignToWarehouse(
+    @Param() params: AssignWarehouseDto,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.assignToWarehouse(
+      params.employeeId,
+      params.warehouseId,
+      session.user as User,
+    );
+  }
+
+  @Delete(':employeeId/warehouses/:warehouseId')
+  async unassignFromWarehouse(
+    @Param() params: AssignWarehouseDto,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.unassignFromWarehouse(
+      params.employeeId,
+      params.warehouseId,
+      session.user as User,
     );
   }
 }

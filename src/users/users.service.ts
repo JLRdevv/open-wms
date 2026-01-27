@@ -17,6 +17,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { canManageRole, RoleLevel } from 'src/lib/auth/role.util';
 import { UsersRepository } from './users.repository';
 import { UpdateEmployeeDto } from './dtos/update-employee';
+import e from 'express';
 
 @Injectable()
 export class UsersService {
@@ -326,6 +327,32 @@ export class UsersService {
       throw new InternalServerErrorException(
         'Error unassigning employee from warehouse.',
       );
+    }
+  }
+
+  async deleteEmployee(employeeId: string, currentUser: User) {
+    if (employeeId === currentUser.id) {
+      throw new BadRequestException('You cannot delete your own account.');
+    }
+
+    const employee = await this.usersRepository.findById(employeeId);
+
+    if (!employee) {
+      throw new NotFoundException('Employee not found.');
+    }
+
+    if (!canManageRole(currentUser.role, employee.role)) {
+      throw new UnauthorizedException(
+        'You do not have permission to delete this user.',
+      );
+    }
+
+    try {
+      await this.usersRepository.deleteUser(employeeId);
+      return { success: true, message: 'Employee deleted successfully.' };
+    } catch (error) {
+      this.logger.error('Error deleting employee', error);
+      throw new InternalServerErrorException('Error deleting employee.');
     }
   }
 }

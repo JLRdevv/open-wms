@@ -26,6 +26,7 @@ model User {
   updatedAt       DateTime  @updatedAt
   username        String
   displayUsername String?
+  deletedAt       DateTime?
   sessions        Session[]
   accounts        Account[]
   role            Role      @default(OPERATOR)

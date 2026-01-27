@@ -72,6 +72,14 @@ export class UsersController {
     );
   }
 
+  @Delete(':id')
+  async deleteEmployee(
+    @Param('id') id: string,
+    @Session() session: UserSession,
+  ) {
+    return await this.usersService.deleteEmployee(id, session.user as User);
+  }
+
   @Post(':employeeId/warehouses/:warehouseId')
   async assignToWarehouse(
     @Param() params: AssignWarehouseDto,

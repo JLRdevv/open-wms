@@ -43,16 +43,25 @@ model Warehouse {
   id    Int    @id @default(autoincrement())
   name  String
   code        String    @unique
+  isActive    Boolean   @default(true)
+  deletedAt   DateTime?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  address     Address   @relation(fields: [addressId], references: [id])
+  addressId   Int    @unique
+  users User[]
+  @@map("warehouse")
+}
+
+model Address {
+  id          Int   @id @default(autoincrement())
   address     String?
   city        String?
   state       String?
   country     String?
   zipCode     String?
-  isActive    Boolean   @default(true)
-  deletedAt   DateTime?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  users User[]
+  warehouse   Warehouse?
+  @@map("address")
 }
 
 model Session {

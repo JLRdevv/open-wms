@@ -30,4 +30,8 @@ export class WarehousesService {
       warehouseId,
     );
   }
+
+  async softDeleteWarehouse(warehouseId: number) {
+    return await this.warehousesRepository.softDeleteWarehouse(warehouseId);
+  }
 }

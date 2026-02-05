@@ -1,6 +1,7 @@
 import {
   Body,
   Controller,
+  Delete,
   Param,
   Patch,
   Post,
@@ -38,5 +39,10 @@ export class WarehousesController {
       body,
       params.warehouseId,
     );
+  }
+
+  @Delete(':warehouseId')
+  async softDeleteWarehouse(@Param() params: WarehouseParamDto) {
+    return await this.warehousesService.softDeleteWarehouse(params.warehouseId);
   }
 }

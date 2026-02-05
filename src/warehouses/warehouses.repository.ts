@@ -61,4 +61,16 @@ export class WarehousesRepository {
       throw error;
     }
   }
+
+  async softDeleteWarehouse(warehouseId: number) {
+    try {
+      return await this.prisma.warehouse.update({
+        where: { id: warehouseId },
+        data: { deletedAt: new Date() },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
 }

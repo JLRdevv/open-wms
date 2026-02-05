@@ -1,6 +1,7 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { WarehousesRepository } from './warehouses.repository';
 import { CreateWarehouseDto } from './dtos/create-warehouse';
+import { UpdateWarehouseDto } from './dtos/update-warehouse';
 
 @Injectable()
 export class WarehousesService {
@@ -18,5 +19,15 @@ export class WarehousesService {
       this.logger.error('Failed to create warehouse', error);
       throw error;
     }
+  }
+
+  async updateWarehouse(
+    newWarehouseData: UpdateWarehouseDto,
+    warehouseId: number,
+  ) {
+    return await this.warehousesRepository.updateWarehouse(
+      newWarehouseData,
+      warehouseId,
+    );
   }
 }

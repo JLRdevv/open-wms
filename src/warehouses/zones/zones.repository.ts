@@ -1,6 +1,6 @@
 import { handlePrismaException } from 'src/common/utils/prisma-exception-handler';
 import { PrismaService } from 'src/prisma/prisma.service';
-import { CreateZoneDto } from '../dtos/create-zone';
+import { CreateZoneDto } from './dtos/create-zone';
 import { Injectable } from '@nestjs/common';
 
 @Injectable()

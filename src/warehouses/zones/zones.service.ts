@@ -1,6 +1,6 @@
 import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ZonesRepository } from './zones.repository';
-import { CreateZoneDto } from '../dtos/create-zone';
+import { CreateZoneDto } from './dtos/create-zone';
 
 @Injectable()
 export class ZonesService {

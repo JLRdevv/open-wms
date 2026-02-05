@@ -72,7 +72,7 @@ model Warehouse {
 
 model Address {
   id          Int   @id @default(autoincrement())
-  address     String?
+  addressLine String?
   city        String?
   state       String?
   country     String?

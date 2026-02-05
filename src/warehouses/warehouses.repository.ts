@@ -28,10 +28,14 @@ export class WarehousesRepository {
     }
   }
 
-  async findById(warehouseId: number) {
+  async findById(warehouseId: number, include: { deleted?: boolean } = {}) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: { id: warehouseId },
+        include: {
+          address: true,
+          ...include,
+        },
       });
     } catch (error) {
       handlePrismaException(error);
@@ -42,7 +46,7 @@ export class WarehousesRepository {
   async updateWarehouse(data: UpdateWarehouseDto, warehouseId: number) {
     try {
       return await this.prisma.warehouse.update({
-        where: { id: warehouseId },
+        where: { id: warehouseId, deletedAt: null },
         data: {
           name: data.name,
           code: data.code,
@@ -65,8 +69,20 @@ export class WarehousesRepository {
   async softDeleteWarehouse(warehouseId: number) {
     try {
       return await this.prisma.warehouse.update({
-        where: { id: warehouseId },
+        where: { id: warehouseId, deletedAt: null },
         data: { deletedAt: new Date() },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
+  async restoreWarehouse(warehouseId: number) {
+    try {
+      return await this.prisma.warehouse.update({
+        where: { id: warehouseId },
+        data: { deletedAt: null },
       });
     } catch (error) {
       handlePrismaException(error);

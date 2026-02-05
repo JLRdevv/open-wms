@@ -34,4 +34,8 @@ export class WarehousesService {
   async softDeleteWarehouse(warehouseId: number) {
     return await this.warehousesRepository.softDeleteWarehouse(warehouseId);
   }
+
+  async restoreWarehouse(warehouseId: number) {
+    return await this.warehousesRepository.restoreWarehouse(warehouseId);
+  }
 }

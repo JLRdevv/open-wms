@@ -45,4 +45,9 @@ export class WarehousesController {
   async softDeleteWarehouse(@Param() params: WarehouseParamDto) {
     return await this.warehousesService.softDeleteWarehouse(params.warehouseId);
   }
+
+  @Post(':warehouseId/restore')
+  async restoreWarehouse(@Param() params: WarehouseParamDto) {
+    return await this.warehousesService.restoreWarehouse(params.warehouseId);
+  }
 }

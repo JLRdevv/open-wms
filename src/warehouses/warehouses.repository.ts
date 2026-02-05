@@ -30,4 +30,15 @@ export class WarehousesRepository {
       throw error;
     }
   }
+
+  async findById(warehouseId: number) {
+    try {
+      return await this.prisma.warehouse.findUnique({
+        where: { id: warehouseId },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
 }

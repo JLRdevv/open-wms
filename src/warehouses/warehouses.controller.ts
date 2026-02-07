@@ -2,6 +2,7 @@ import {
   Body,
   Controller,
   Delete,
+  Get,
   Param,
   Patch,
   Post,
@@ -15,11 +16,28 @@ import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { WarehouseParamDto } from './dtos/warehouse-param';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
 import { ConfirmHardDeleteDto } from 'src/common/dtos/confirm-hard-delete';
+import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
 
 @Controller('warehouse')
 @UseGuards(AdminLevelGuard)
 export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}
+
+  @Get()
+  async getWarehouses(@Query() query: WarehouseQueryFilteringDto) {
+    return await this.warehousesService.getWarehouses(query);
+  }
+
+  @Get(':warehouseId')
+  async getWarehouseById(
+    @Param() params: WarehouseParamDto,
+    @Query() query: WarehouseQueryFilteringDto,
+  ) {
+    return await this.warehousesService.getWarehouseById(
+      params.warehouseId,
+      query,
+    );
+  }
 
   @Post()
   async createWarehouse(

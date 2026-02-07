@@ -1,7 +1,13 @@
-import { BadRequestException, Injectable, Logger } from '@nestjs/common';
+import {
+  BadRequestException,
+  Injectable,
+  Logger,
+  NotFoundException,
+} from '@nestjs/common';
 import { WarehousesRepository } from './warehouses.repository';
 import { CreateWarehouseDto } from './dtos/create-warehouse';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
+import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
 
 @Injectable()
 export class WarehousesService {
@@ -25,18 +31,42 @@ export class WarehousesService {
     newWarehouseData: UpdateWarehouseDto,
     warehouseId: number,
   ) {
-    return await this.warehousesRepository.updateWarehouse(
-      newWarehouseData,
-      warehouseId,
-    );
+    try {
+      return await this.warehousesRepository.updateWarehouse(
+        newWarehouseData,
+        warehouseId,
+      );
+    } catch (error) {
+      this.logger.error(
+        `Failed to update warehouse with ID ${warehouseId}`,
+        error,
+      );
+      throw error;
+    }
   }
 
   async softDeleteWarehouse(warehouseId: number) {
-    return await this.warehousesRepository.softDeleteWarehouse(warehouseId);
+    try {
+      return await this.warehousesRepository.softDeleteWarehouse(warehouseId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to soft delete warehouse with ID ${warehouseId}`,
+        error,
+      );
+      throw error;
+    }
   }
 
   async restoreWarehouse(warehouseId: number) {
-    return await this.warehousesRepository.restoreWarehouse(warehouseId);
+    try {
+      return await this.warehousesRepository.restoreWarehouse(warehouseId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to restore warehouse with ID ${warehouseId}`,
+        error,
+      );
+      throw error;
+    }
   }
 
   async hardDeleteWarehouse(warehouseId: number, confirm: boolean) {
@@ -44,6 +74,32 @@ export class WarehousesService {
       return new BadRequestException(
         'You must confirm the hard deletion by setting confirm=true in the query parameters.',
       );
-    return await this.warehousesRepository.hardDeleteWarehouse(warehouseId);
+    try {
+      return await this.warehousesRepository.hardDeleteWarehouse(warehouseId);
+    } catch (error) {
+      this.logger.error(
+        `Failed to hard delete warehouse with ID ${warehouseId}`,
+        error,
+      );
+      throw error;
+    }
+  }
+
+  async getWarehouses(include: WarehouseQueryFilteringDto = {}) {
+    return await this.warehousesRepository.getWarehouses(include);
+  }
+
+  async getWarehouseById(
+    warehouseId: number,
+    include: WarehouseQueryFilteringDto = {},
+  ) {
+    const warehouse = await this.warehousesRepository.findById(
+      warehouseId,
+      include,
+    );
+    if (!warehouse) {
+      throw new NotFoundException(`Warehouse not found with ID ${warehouseId}`);
+    }
+    return warehouse;
   }
 }

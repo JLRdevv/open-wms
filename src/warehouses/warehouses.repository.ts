@@ -89,4 +89,22 @@ export class WarehousesRepository {
       throw error;
     }
   }
+
+  async hardDeleteWarehouse(warehouseId: number) {
+    try {
+      await this.prisma.$transaction(async (tx) => {
+        const wh = await tx.warehouse.delete({
+          where: { id: warehouseId },
+          include: { address: true },
+        });
+        await tx.address.delete({
+          where: { id: wh.addressId },
+        });
+        return wh;
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
 }

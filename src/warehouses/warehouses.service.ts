@@ -38,4 +38,12 @@ export class WarehousesService {
   async restoreWarehouse(warehouseId: number) {
     return await this.warehousesRepository.restoreWarehouse(warehouseId);
   }
+
+  async hardDeleteWarehouse(warehouseId: number, confirm: boolean) {
+    if (!confirm)
+      return new BadRequestException(
+        'You must confirm the hard deletion by setting confirm=true in the query parameters.',
+      );
+    return await this.warehousesRepository.hardDeleteWarehouse(warehouseId);
+  }
 }

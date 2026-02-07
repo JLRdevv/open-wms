@@ -39,6 +39,13 @@ export class WarehousesController {
     );
   }
 
+  @Get(':warehouseId/employees')
+  async getWarehouseEmployees(@Param() params: WarehouseParamDto) {
+    return await this.warehousesService.getWarehouseEmployees(
+      params.warehouseId,
+    );
+  }
+
   @Post()
   async createWarehouse(
     @Body() warehouseData: CreateWarehouseDto,

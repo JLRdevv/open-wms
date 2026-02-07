@@ -129,4 +129,18 @@ export class WarehousesRepository {
       throw error;
     }
   }
+
+  async getWarehouseEmployees(warehouseId: number) {
+    try {
+      return await this.prisma.warehouse.findUnique({
+        where: { id: warehouseId },
+        include: {
+          users: true,
+        },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
 }

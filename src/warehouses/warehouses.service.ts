@@ -8,6 +8,7 @@ import { WarehousesRepository } from './warehouses.repository';
 import { CreateWarehouseDto } from './dtos/create-warehouse';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
 import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
+import { serializeUsers } from './utils/serialize-users';
 
 @Injectable()
 export class WarehousesService {
@@ -101,5 +102,14 @@ export class WarehousesService {
       throw new NotFoundException(`Warehouse not found with ID ${warehouseId}`);
     }
     return warehouse;
+  }
+
+  async getWarehouseEmployees(warehouseId: number) {
+    const warehouse =
+      await this.warehousesRepository.getWarehouseEmployees(warehouseId);
+    if (!warehouse) {
+      throw new NotFoundException(`Warehouse not found with ID ${warehouseId}`);
+    }
+    return serializeUsers(warehouse.users);
   }
 }

@@ -6,6 +6,7 @@ import { auth } from './lib/auth/auth';
 import { PrismaModule } from './prisma/prisma.module';
 import { LoggerModule } from 'nestjs-pino';
 import { UsersModule } from './users/users.module';
+import { WarehousesModule } from './warehouses/warehouses.module';
 
 @Module({
   imports: [
@@ -42,6 +43,7 @@ import { UsersModule } from './users/users.module';
       },
     }),
     UsersModule,
+    WarehousesModule,
   ],
   controllers: [AppController],
 })

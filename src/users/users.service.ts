@@ -54,32 +54,30 @@ export class UsersService {
 
     const email = newEmployee.email || `${newEmployee.username}@local.com`;
 
+    const signUpResponse = await auth.api.signUpEmail({
+      body: {
+        email,
+        password: newEmployee.password,
+        name: newEmployee.name,
+        role: newEmployee.role,
+        username: newEmployee.username,
+        createdBy: currentUser.id,
+      },
+      headers: new Headers({
+        [process.env.INTERNAL_HEADER_NAME!]: process.env.INTERNAL_SECRET!,
+      }),
+    });
     try {
-      await this.prisma.$transaction(async () => {
-        const signUpResponse = await auth.api.signUpEmail({
-          body: {
-            email,
-            password: newEmployee.password,
-            name: newEmployee.name,
-            role: newEmployee.role,
-            username: newEmployee.username,
-            createdBy: currentUser.id,
-          },
-          headers: new Headers({
-            [process.env.INTERNAL_HEADER_NAME!]: process.env.INTERNAL_SECRET!,
-          }),
-        });
-        if (registerToWarehouse) {
-          await this.usersRepository.connectWarehouse(
-            signUpResponse.user.id,
-            newEmployee.warehouseId!,
-          );
-        }
-      });
-      return { success: true, message: 'Employee created successfully.' };
+      if (registerToWarehouse) {
+        await this.usersRepository.connectWarehouse(
+          signUpResponse.user.id,
+          newEmployee.warehouseId!,
+        );
+      }
+      return signUpResponse.user;
     } catch (error) {
-      this.logger.error('Error creating employee', error);
-      throw new InternalServerErrorException('Error creating employee.');
+      this.logger.error(error);
+      throw error;
     }
   }
 
@@ -148,7 +146,6 @@ export class UsersService {
     //users bellow or equal to manager must be assigned to at least one warehouse
     let registerToWarehouse = false;
     if (RoleLevel[newRole] <= RoleLevel[Role.MANAGER]) {
-      console.log(employee.warehouses.length);
       if (employee.warehouses.length < 1 && !warehouseId) {
         throw new BadRequestException(
           `The role ${newRole} requires the employee to be assigned to at least one warehouse, provide a warehouseId to assign.`,
@@ -165,15 +162,12 @@ export class UsersService {
     }
 
     try {
-      await this.usersRepository.updateRole(
+      const updateResponse = await this.usersRepository.updateRole(
         employeeId,
         newRole,
         registerToWarehouse ? warehouseId : undefined,
       );
-      return {
-        message: 'Role updated successfully.',
-        newRole,
-      };
+      return updateResponse;
     } catch (error) {
       this.logger.error('Error updating role', error);
       throw new InternalServerErrorException('Error updating role.');

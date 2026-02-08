@@ -7,6 +7,7 @@ import {
   Patch,
   Post,
   Req,
+  UseGuards,
 } from '@nestjs/common';
 import { UsersService } from './users.service';
 import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
@@ -18,7 +19,10 @@ import { User } from '@prisma/client';
 import { RoleChangeDto } from './dtos/role-change';
 import { UpdateEmployeeDto } from './dtos/update-employee';
 import { AssignWarehouseDto } from './dtos/assign-warehouse';
+import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
+import { NoRotate } from 'src/common/decorators/no-rotate';
 
+@UseGuards(PasswordRotationGuard)
 @Controller('employee')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
@@ -31,6 +35,7 @@ export class UsersController {
     return await this.usersService.createEmployee(body, session.user as User);
   }
 
+  @NoRotate()
   @Post('rotate-password')
   async rotatePassword(
     @Body() body: RotatePasswordDto,

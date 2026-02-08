@@ -4,6 +4,7 @@ import { CreateWarehouseDto } from './dtos/create-warehouse';
 import { handlePrismaException } from 'src/common/utils/prisma-exception-handler';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
 import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
+import { QueryInclude } from './types/include';
 
 @Injectable()
 export class WarehousesRepository {
@@ -29,10 +30,7 @@ export class WarehousesRepository {
     }
   }
 
-  async findById(
-    warehouseId: number,
-    include: WarehouseQueryFilteringDto = {},
-  ) {
+  async findById(warehouseId: number, include: QueryInclude = {}) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: {
@@ -41,6 +39,13 @@ export class WarehousesRepository {
         },
         include: {
           address: include.address,
+          zones: include.zones
+            ? {
+                where: {
+                  deletedAt: null,
+                },
+              }
+            : undefined,
         },
       });
     } catch (error) {
@@ -114,7 +119,7 @@ export class WarehousesRepository {
     }
   }
 
-  async getWarehouses(include: { deleted?: boolean; address?: boolean } = {}) {
+  async getWarehouses(include: Partial<QueryInclude> = {}) {
     try {
       return await this.prisma.warehouse.findMany({
         where: {

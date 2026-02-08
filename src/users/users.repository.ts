@@ -39,6 +39,20 @@ export class UsersRepository {
     }
   }
 
+  async disableRotatePassword(userId: string) {
+    try {
+      return await this.prisma.user.update({
+        where: { id: userId, deletedAt: null },
+        data: {
+          shouldRotatePassword: false,
+        },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
   async enableRotatePassword(userId: string) {
     try {
       return await this.prisma.user.update({

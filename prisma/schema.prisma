@@ -91,6 +91,7 @@ model Zone {
   locations   Location[]
   createdBy   String
   createdAt   DateTime   @default(now())
+  deletedAt   DateTime?
   updatedAt   DateTime   @updatedAt
   @@unique([warehouseId, code]) 
   @@map("zone")

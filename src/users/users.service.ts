@@ -105,7 +105,7 @@ export class UsersService {
           },
           headers,
         }),
-        this.usersRepository.enableRotatePassword(user.id),
+        this.usersRepository.disableRotatePassword(user.id),
       ]);
 
       return {

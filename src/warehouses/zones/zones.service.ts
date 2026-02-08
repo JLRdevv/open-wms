@@ -21,10 +21,10 @@ export class ZonesService {
       ),
     ]);
 
-    if (!warehouse) {
+    if (warehouse.status === 'fulfilled' && !warehouse.value) {
       throw new BadRequestException('Warehouse not found');
     }
-    if (zone) {
+    if (zone.status === 'fulfilled' && zone.value) {
       throw new BadRequestException(
         `Zone with code ${zoneData.code} already exists in this warehouse`,
       );

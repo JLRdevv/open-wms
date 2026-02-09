@@ -2,6 +2,7 @@ import { BadRequestException, Injectable, Logger } from '@nestjs/common';
 import { ZonesRepository } from './zones.repository';
 import { CreateZoneDto } from './dtos/create-zone';
 import { ZoneQueryInclude } from './types/include';
+import { UpdateZoneDto } from './dtos/update-zone';
 
 @Injectable()
 export class ZonesService {
@@ -55,15 +56,15 @@ export class ZonesService {
     return warehouse.zones;
   }
 
-  async getZoneById(
-    warehouseId: number,
-    zoneId: number,
-    include: ZoneQueryInclude,
-  ) {
+  async getZoneById(zoneId: number, include: ZoneQueryInclude) {
     const zone = await this.zonesRepository.findZoneById(zoneId, include);
-    if (!zone || zone.warehouseId !== warehouseId) {
-      throw new BadRequestException('Zone not found in this warehouse');
+    if (!zone) {
+      throw new BadRequestException('Zone not found');
     }
     return zone;
+  }
+
+  async updateZone(data: UpdateZoneDto, zoneId: number) {
+    return await this.zonesRepository.updateZone(data, zoneId);
   }
 }

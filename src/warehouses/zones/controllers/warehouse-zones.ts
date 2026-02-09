@@ -3,23 +3,22 @@ import {
   Controller,
   Get,
   Param,
+  Patch,
   Post,
   Query,
   Session,
   UseGuards,
 } from '@nestjs/common';
-import { WarehouseParamDto } from '../dtos/warehouse-param';
-import { CreateZoneDto } from './dtos/create-zone';
+import { WarehouseParamDto } from '../../dtos/warehouse-param';
+import { CreateZoneDto } from '../dtos/create-zone';
 import { type UserSession } from '@thallesp/nestjs-better-auth';
-import { ZonesService } from './zones.service';
+import { ZonesService } from '../zones.service';
 import { AdminLevelGuard } from 'src/common/guards/admin-level';
 import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
-import { ZoneParamDto } from './dtos/zone-param';
-import { ZoneQueryFilteringDto } from './dtos/zone-query-filtering';
 
 @Controller('warehouses/:warehouseId/zones')
 @UseGuards(AdminLevelGuard, PasswordRotationGuard)
-export class ZonesController {
+export class WarehouseZonesController {
   constructor(private readonly zonesService: ZonesService) {}
 
   @Post()
@@ -38,17 +37,5 @@ export class ZonesController {
   @Get()
   async getZones(@Param() params: WarehouseParamDto) {
     return await this.zonesService.getZones(params.warehouseId);
-  }
-
-  @Get(':zoneId')
-  async getZoneById(
-    @Param() params: ZoneParamDto,
-    @Query() query: ZoneQueryFilteringDto,
-  ) {
-    return await this.zonesService.getZoneById(
-      params.warehouseId,
-      params.zoneId,
-      query,
-    );
   }
 }

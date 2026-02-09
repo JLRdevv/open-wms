@@ -4,6 +4,7 @@ import { CreateZoneDto } from './dtos/create-zone';
 import { Injectable } from '@nestjs/common';
 import { WarehouseQueryInclude } from '../types/include';
 import { ZoneQueryInclude } from './types/include';
+import { UpdateZoneDto } from './dtos/update-zone';
 
 @Injectable()
 export class ZonesRepository {
@@ -77,6 +78,18 @@ export class ZonesRepository {
             ? { where: { deletedAt: null } }
             : undefined,
         },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
+  async updateZone(data: UpdateZoneDto, zoneId: number) {
+    try {
+      return await this.prisma.zone.update({
+        where: { id: zoneId },
+        data,
       });
     } catch (error) {
       handlePrismaException(error);

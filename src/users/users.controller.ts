@@ -23,7 +23,7 @@ import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
 import { NoRotate } from 'src/common/decorators/no-rotate';
 
 @UseGuards(PasswordRotationGuard)
-@Controller('employee')
+@Controller('employees')
 export class UsersController {
   constructor(private readonly usersService: UsersService) {}
 

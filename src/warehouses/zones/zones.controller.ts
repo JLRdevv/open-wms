@@ -12,7 +12,7 @@ import { type UserSession } from '@thallesp/nestjs-better-auth';
 import { ZonesService } from './zones.service';
 import { AdminLevelGuard } from 'src/common/guards/admin-level';
 
-@Controller('warehouse/:warehouseId/zone')
+@Controller('warehouses/:warehouseId/zones')
 export class ZonesController {
   constructor(private readonly zonesService: ZonesService) {}
 

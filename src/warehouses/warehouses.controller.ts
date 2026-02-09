@@ -19,7 +19,7 @@ import { ConfirmHardDeleteDto } from 'src/common/dtos/confirm-hard-delete';
 import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
 import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
 
-@Controller('warehouse')
+@Controller('warehouses')
 @UseGuards(AdminLevelGuard, PasswordRotationGuard)
 export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}

@@ -2,15 +2,30 @@ import { handlePrismaException } from 'src/common/utils/prisma-exception-handler
 import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateZoneDto } from './dtos/create-zone';
 import { Injectable } from '@nestjs/common';
+import { WarehouseQueryInclude } from '../types/include';
+import { ZoneQueryInclude } from './types/include';
 
 @Injectable()
 export class ZonesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findWarehouseById(warehouseId: number) {
+  async findWarehouseById(
+    warehouseId: number,
+    include: WarehouseQueryInclude = {},
+  ) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: { id: warehouseId },
+        include: {
+          address: include.address,
+          zones: include.zones
+            ? {
+                where: {
+                  deletedAt: null,
+                },
+              }
+            : undefined,
+        },
       });
     } catch (error) {
       handlePrismaException(error);
@@ -45,6 +60,22 @@ export class ZonesRepository {
           type: zoneData.type,
           warehouseId: warehouseId,
           createdBy: adminId,
+        },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
+  async findZoneById(zoneId: number, include: ZoneQueryInclude = {}) {
+    try {
+      return await this.prisma.zone.findUnique({
+        where: { id: zoneId, deletedAt: include.deleted ? undefined : null },
+        include: {
+          locations: include.locations
+            ? { where: { deletedAt: null } }
+            : undefined,
         },
       });
     } catch (error) {

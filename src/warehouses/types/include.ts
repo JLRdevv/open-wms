@@ -1,4 +1,4 @@
-export type QueryInclude = {
+export type WarehouseQueryInclude = {
   address?: boolean;
   zones?: boolean;
   users?: boolean;

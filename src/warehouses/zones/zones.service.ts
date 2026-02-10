@@ -3,6 +3,8 @@ import { ZonesRepository } from './zones.repository';
 import { CreateZoneDto } from './dtos/create-zone';
 import { ZoneQueryInclude } from './types/include';
 import { UpdateZoneDto } from './dtos/update-zone';
+import { AllowedZoneIncludes } from './dtos/include-query';
+import { parseIncludeQuery } from 'src/common/utils/parse-include';
 
 @Injectable()
 export class ZonesService {
@@ -56,7 +58,8 @@ export class ZonesService {
     return warehouse.zones;
   }
 
-  async getZoneById(zoneId: number, include: ZoneQueryInclude) {
+  async getZoneById(zoneId: number, query: AllowedZoneIncludes[]) {
+    const include = parseIncludeQuery<ZoneQueryInclude>(query);
     const zone = await this.zonesRepository.findZoneById(zoneId, include);
     if (!zone) {
       throw new BadRequestException('Zone not found');

@@ -29,7 +29,7 @@ export class WarehousesRepository {
     }
   }
 
-  async findById(warehouseId: number, include: WarehouseQueryInclude = {}) {
+  async findById(warehouseId: number, include: WarehouseQueryInclude) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: {
@@ -118,7 +118,7 @@ export class WarehousesRepository {
     }
   }
 
-  async getWarehouses(include: Partial<WarehouseQueryInclude> = {}) {
+  async getWarehouses(include: WarehouseQueryInclude) {
     try {
       return await this.prisma.warehouse.findMany({
         where: {
@@ -126,6 +126,7 @@ export class WarehousesRepository {
         },
         include: {
           address: include.address,
+          zones: include.zones ? { where: { deletedAt: null } } : undefined,
         },
       });
     } catch (error) {

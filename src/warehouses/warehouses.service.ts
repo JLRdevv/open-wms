@@ -7,8 +7,10 @@ import {
 import { WarehousesRepository } from './warehouses.repository';
 import { CreateWarehouseDto } from './dtos/create-warehouse';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
-import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
+import { WarehouseQueryFilteringDto } from './dtos/include-query';
 import { serializeUsers } from './utils/serialize-users';
+import { parseIncludeQuery } from '../common/utils/parse-include';
+import { WarehouseQueryInclude } from './types/include';
 
 @Injectable()
 export class WarehousesService {
@@ -106,14 +108,16 @@ export class WarehousesService {
     }
   }
 
-  async getWarehouses(include: WarehouseQueryFilteringDto = {}) {
+  async getWarehouses(query: WarehouseQueryFilteringDto) {
+    const include = parseIncludeQuery<WarehouseQueryInclude>(query.include);
     return await this.warehousesRepository.getWarehouses(include);
   }
 
   async getWarehouseById(
     warehouseId: number,
-    include: WarehouseQueryFilteringDto = {},
+    query: WarehouseQueryFilteringDto,
   ) {
+    const include = parseIncludeQuery<WarehouseQueryInclude>(query.include);
     const warehouse = await this.warehousesRepository.findById(
       warehouseId,
       include,

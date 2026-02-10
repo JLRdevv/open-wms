@@ -1,4 +1,5 @@
-export type ZoneQueryInclude = {
-  locations?: boolean;
-  deleted?: boolean;
-};
+import { AllowedZoneIncludes } from '../dtos/include-query';
+
+export type ZoneQueryInclude = Partial<
+  Record<AllowedZoneIncludes, boolean | undefined>
+>;

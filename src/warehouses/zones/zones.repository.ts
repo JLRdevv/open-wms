@@ -10,10 +10,7 @@ import { UpdateZoneDto } from './dtos/update-zone';
 export class ZonesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findWarehouseById(
-    warehouseId: number,
-    include: WarehouseQueryInclude = {},
-  ) {
+  async findWarehouseById(warehouseId: number, include: WarehouseQueryInclude = {}) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: { id: warehouseId },

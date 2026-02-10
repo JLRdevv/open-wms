@@ -11,7 +11,7 @@ import { ZonesService } from '../zones.service';
 import { AdminLevelGuard } from 'src/common/guards/admin-level';
 import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
 import { ZoneParamDto } from '../dtos/zone-param';
-import { ZoneQueryFilteringDto } from '../dtos/zone-query-filtering';
+import { ZoneQueryFilteringDto } from '../dtos/include-query';
 import { UpdateZoneDto } from '../dtos/update-zone';
 
 @Controller('zones')
@@ -24,17 +24,11 @@ export class ZonesController {
     @Param() params: ZoneParamDto,
     @Query() query: ZoneQueryFilteringDto,
   ) {
-    return await this.zonesService.getZoneById(params.zoneId!, query);
+    return await this.zonesService.getZoneById(params.zoneId, query.include);
   }
 
   @Patch(':zoneId')
-  async updateZone(
-    @Body() body: UpdateZoneDto,
-    @Param() params: ZoneParamDto,
-  ) {
-    return await this.zonesService.updateZone(
-      body,
-      params.zoneId,
-    );
+  async updateZone(@Body() body: UpdateZoneDto, @Param() params: ZoneParamDto) {
+    return await this.zonesService.updateZone(body, params.zoneId);
   }
 }

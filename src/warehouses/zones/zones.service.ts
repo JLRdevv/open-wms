@@ -17,21 +17,9 @@ export class ZonesService {
     warehouseId: number,
     adminId: string,
   ) {
-    const [warehouse, zone] = await Promise.allSettled([
-      this.zonesRepository.findWarehouseById(warehouseId),
-      this.zonesRepository.findZoneByCodeInWarehouse(
-        zoneData.code,
-        warehouseId,
-      ),
-    ]);
-
-    if (warehouse.status === 'fulfilled' && !warehouse.value) {
+    const warehouse = await this.zonesRepository.findWarehouseById(warehouseId);
+    if (!warehouse) {
       throw new BadRequestException('Warehouse not found');
-    }
-    if (zone.status === 'fulfilled' && zone.value) {
-      throw new BadRequestException(
-        `Zone with code ${zoneData.code} already exists in this warehouse`,
-      );
     }
 
     try {

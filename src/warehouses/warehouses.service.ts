@@ -94,7 +94,7 @@ export class WarehousesService {
     try {
       const [warehouse, zones] = await Promise.all([
         this.warehousesRepository.findById(warehouseId, { deleted: true }),
-        this.warehousesRepository.getZones(warehouseId, true),
+        this.warehousesRepository.getZones(warehouseId, { deleted: true }),
       ]);
       if (!warehouse) {
         throw new NotFoundException(

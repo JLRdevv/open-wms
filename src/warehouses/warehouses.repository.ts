@@ -53,12 +53,12 @@ export class WarehousesRepository {
     }
   }
 
-  async getZones(warehouseId: number, showDeleted: boolean = false) {
+  async getZones(warehouseId: number, show: { deleted?: boolean } = {}) {
     try {
       return await this.prisma.zone.findMany({
         where: {
           warehouseId: warehouseId,
-          deletedAt: showDeleted ? undefined : null,
+          deletedAt: show.deleted ? undefined : null,
         },
       });
     } catch (error) {
@@ -69,7 +69,7 @@ export class WarehousesRepository {
 
   async updateWarehouse(data: UpdateWarehouseDto, warehouseId: number) {
     try {
-      return await this.prisma.warehouse.update({
+      return await this.prisma.warehouse.update({  
         where: { id: warehouseId, deletedAt: null },
         data: {
           name: data.name,

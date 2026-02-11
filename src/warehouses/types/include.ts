@@ -1,6 +1,5 @@
-export type QueryInclude = {
-  address?: boolean;
-  zones?: boolean;
-  users?: boolean;
-  deleted?: boolean;
-};
+import { AllowedWarehouseIncludes } from '../dtos/include-query';
+
+export type WarehouseQueryInclude = Partial<
+  Record<AllowedWarehouseIncludes, boolean | undefined>
+>;

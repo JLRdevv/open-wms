@@ -16,7 +16,7 @@ import { Session, type UserSession } from '@thallesp/nestjs-better-auth';
 import { WarehouseParamDto } from './dtos/warehouse-param';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
 import { ConfirmHardDeleteDto } from 'src/common/dtos/confirm-hard-delete';
-import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
+import { WarehouseQueryFilteringDto } from './dtos/include-query';
 import { PasswordRotationGuard } from 'src/common/guards/passwordRotation';
 
 @Controller('warehouses')
@@ -25,7 +25,10 @@ export class WarehousesController {
   constructor(private readonly warehousesService: WarehousesService) {}
 
   @Get()
-  async getWarehouses(@Query() query: WarehouseQueryFilteringDto) {
+  async getWarehouses(
+    @Query()
+    query: WarehouseQueryFilteringDto,
+  ) {
     return await this.warehousesService.getWarehouses(query);
   }
 

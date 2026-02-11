@@ -3,8 +3,7 @@ import { PrismaService } from 'src/prisma/prisma.service';
 import { CreateWarehouseDto } from './dtos/create-warehouse';
 import { handlePrismaException } from 'src/common/utils/prisma-exception-handler';
 import { UpdateWarehouseDto } from './dtos/update-warehouse';
-import { WarehouseQueryFilteringDto } from './dtos/query-filtering';
-import { QueryInclude } from './types/include';
+import { WarehouseQueryInclude } from './types/include';
 
 @Injectable()
 export class WarehousesRepository {
@@ -30,7 +29,7 @@ export class WarehousesRepository {
     }
   }
 
-  async findById(warehouseId: number, include: QueryInclude = {}) {
+  async findById(warehouseId: number, include: WarehouseQueryInclude = {}) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: {
@@ -54,9 +53,23 @@ export class WarehousesRepository {
     }
   }
 
+  async getZones(warehouseId: number, show: { deleted?: boolean } = {}) {
+    try {
+      return await this.prisma.zone.findMany({
+        where: {
+          warehouseId: warehouseId,
+          deletedAt: show.deleted ? undefined : null,
+        },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
   async updateWarehouse(data: UpdateWarehouseDto, warehouseId: number) {
     try {
-      return await this.prisma.warehouse.update({
+      return await this.prisma.warehouse.update({  
         where: { id: warehouseId, deletedAt: null },
         data: {
           name: data.name,
@@ -103,7 +116,7 @@ export class WarehousesRepository {
 
   async hardDeleteWarehouse(warehouseId: number) {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async (tx) => {
         const wh = await tx.warehouse.delete({
           where: { id: warehouseId },
           include: { address: true },
@@ -119,7 +132,7 @@ export class WarehousesRepository {
     }
   }
 
-  async getWarehouses(include: Partial<QueryInclude> = {}) {
+  async getWarehouses(include: WarehouseQueryInclude) {
     try {
       return await this.prisma.warehouse.findMany({
         where: {
@@ -127,6 +140,7 @@ export class WarehousesRepository {
         },
         include: {
           address: include.address,
+          zones: include.zones ? { where: { deletedAt: null } } : undefined,
         },
       });
     } catch (error) {

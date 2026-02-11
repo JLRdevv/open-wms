@@ -23,6 +23,13 @@ enum ZoneTypes {
   HIGH_VALUE
 }
 
+enum ZoneStatus {
+  ACTIVE
+  INACTIVE
+  PICKING_ONLY
+  STORAGE_ONLY
+}
+
 enum LocationType {
   PICKING   
   RESERVE   
@@ -86,7 +93,9 @@ model Zone {
   name        String     
   code        String
   type        ZoneTypes  @default(GENERAL_STORAGE)
-  isActive    Boolean    @default(true)
+  status      ZoneStatus @default(ACTIVE)
+  statusUpdatedAt DateTime?
+  statusReason String?
   warehouse   Warehouse  @relation(fields: [warehouseId], references: [id])
   warehouseId Int 
   locations   Location[]

@@ -5,12 +5,16 @@ import { Injectable } from '@nestjs/common';
 import { WarehouseQueryInclude } from '../types/include';
 import { ZoneQueryInclude } from './types/include';
 import { UpdateZoneDto } from './dtos/update-zone';
+import { Zone } from '@prisma/client';
 
 @Injectable()
 export class ZonesRepository {
   constructor(private readonly prisma: PrismaService) {}
 
-  async findWarehouseById(warehouseId: number, include: WarehouseQueryInclude = {}) {
+  async findWarehouseById(
+    warehouseId: number,
+    include: WarehouseQueryInclude = {},
+  ) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: { id: warehouseId },
@@ -82,7 +86,7 @@ export class ZonesRepository {
     }
   }
 
-  async updateZone(data: UpdateZoneDto, zoneId: number) {
+  async updateZone(data: Partial<Zone>, zoneId: number) {
     try {
       return await this.prisma.zone.update({
         where: { id: zoneId },

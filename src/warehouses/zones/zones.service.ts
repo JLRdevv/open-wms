@@ -5,6 +5,7 @@ import { ZoneQueryInclude } from './types/include';
 import { UpdateZoneDto } from './dtos/update-zone';
 import { AllowedZoneIncludes } from './dtos/include-query';
 import { parseIncludeQuery } from 'src/common/utils/parse-include';
+import { UpdateZoneStatusDto } from './dtos/update-status';
 
 @Injectable()
 export class ZonesService {
@@ -57,5 +58,26 @@ export class ZonesService {
 
   async updateZone(data: UpdateZoneDto, zoneId: number) {
     return await this.zonesRepository.updateZone(data, zoneId);
+  }
+
+  async getZoneStatus(zoneId: number) {
+    const zone = await this.zonesRepository.findZoneById(zoneId);
+    if (!zone) {
+      throw new BadRequestException('Zone not found');
+    }
+    return {
+      status: zone.status,
+      reason: zone.statusReason,
+      updatedAt: zone.statusUpdatedAt,
+    };
+  }
+
+  async updateZoneStatus(data: UpdateZoneStatusDto, zoneId: number) {
+    const updateData = {
+      status: data.status,
+      statusReason: data.reason,
+      statusUpdatedAt: new Date(),
+    };
+    return await this.zonesRepository.updateZone(updateData, zoneId);
   }
 }

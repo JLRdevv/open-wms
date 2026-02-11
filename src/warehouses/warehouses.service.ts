@@ -48,19 +48,18 @@ export class WarehousesService {
     }
   }
 
-  async canDeleteWarehouse(warehouseId: number) {
-    const warehouse = await this.warehousesRepository.findById(warehouseId, {
-      zones: true,
-    });
-    if (!warehouse) {
-      throw new NotFoundException(`Warehouse not found with ID ${warehouseId}`);
-    }
-    return warehouse.zones.length === 0;
-  }
-
   async softDeleteWarehouse(warehouseId: number) {
     try {
-      if (!(await this.canDeleteWarehouse(warehouseId))) {
+      const [warehouse, zones] = await Promise.all([
+        this.warehousesRepository.findById(warehouseId),
+        this.warehousesRepository.getZones(warehouseId),
+      ]);
+      if (!warehouse) {
+        throw new NotFoundException(
+          `Warehouse not found with ID ${warehouseId}`,
+        );
+      }
+      if (zones.length > 0) {
         throw new BadRequestException(
           'Cannot delete warehouse with associated zones. Please remove all zones before deleting.',
         );
@@ -92,12 +91,21 @@ export class WarehousesService {
       return new BadRequestException(
         'You must confirm the hard deletion by setting confirm=true in the query parameters.',
       );
-    if (!(await this.canDeleteWarehouse(warehouseId))) {
-      throw new BadRequestException(
-        'Cannot delete warehouse with associated zones. Please remove all zones before deleting.',
-      );
-    }
     try {
+      const [warehouse, zones] = await Promise.all([
+        this.warehousesRepository.findById(warehouseId, { deleted: true }),
+        this.warehousesRepository.getZones(warehouseId, true),
+      ]);
+      if (!warehouse) {
+        throw new NotFoundException(
+          `Warehouse not found with ID ${warehouseId}`,
+        );
+      }
+      if (zones.length > 0) {
+        throw new BadRequestException(
+          'Cannot delete warehouse with associated zones. Please hard delete all zones before deleting.',
+        );
+      }
       return await this.warehousesRepository.hardDeleteWarehouse(warehouseId);
     } catch (error) {
       this.logger.error(

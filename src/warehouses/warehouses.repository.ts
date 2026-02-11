@@ -29,7 +29,7 @@ export class WarehousesRepository {
     }
   }
 
-  async findById(warehouseId: number, include: WarehouseQueryInclude) {
+  async findById(warehouseId: number, include: WarehouseQueryInclude = {}) {
     try {
       return await this.prisma.warehouse.findUnique({
         where: {
@@ -45,6 +45,20 @@ export class WarehousesRepository {
                 },
               }
             : undefined,
+        },
+      });
+    } catch (error) {
+      handlePrismaException(error);
+      throw error;
+    }
+  }
+
+  async getZones(warehouseId: number, showDeleted: boolean = false) {
+    try {
+      return await this.prisma.zone.findMany({
+        where: {
+          warehouseId: warehouseId,
+          deletedAt: showDeleted ? undefined : null,
         },
       });
     } catch (error) {
@@ -102,7 +116,7 @@ export class WarehousesRepository {
 
   async hardDeleteWarehouse(warehouseId: number) {
     try {
-      await this.prisma.$transaction(async (tx) => {
+      return await this.prisma.$transaction(async (tx) => {
         const wh = await tx.warehouse.delete({
           where: { id: warehouseId },
           include: { address: true },
